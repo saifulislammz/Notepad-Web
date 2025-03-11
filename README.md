@@ -1,7 +1,7 @@
 # 📌 Notepad Web
 
 ## 🚀 Overview
-**Notepad Web** is a modern, browser-based note-taking application designed for simplicity and efficiency. It allows users to create, manage, and categorize notes seamlessly. No login required—just open and start writing!
+**Notepad Web** is a modern, browser-based note-taking application designed for simplicity and efficiency. It allows users to create, manage notes seamlessly. No login required—just open and start writing!
 ## 📸 Screenshots
 ![Notepad Web Screenshot](https://i.ibb.co.com/C5swXK9z/screenshot-1741670981620.png)
 
