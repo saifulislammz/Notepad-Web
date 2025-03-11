@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notepad Web</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-[#1a1a1a] min-h-screen text-gray-300 antialiased">
+    <div class="flex">
+        <!-- Sidebar -->
+        <div class="w-72 bg-[#212121] min-h-screen p-4 border-r border-[#333] shadow-lg smooth-scroll hide-scrollbar">
+            <div class="mb-6">
+                <div class="relative">
+                    <input type="text" id="searchInput" placeholder="Search notes..." 
+                        class="w-full bg-[#2a2a2a] border border-[#333] rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all duration-200">
+                    <button class="absolute right-3 top-2.5 text-blue-500 hover:text-blue-400 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div id="notesList" class="space-y-3 overflow-y-auto max-h-[calc(100vh-120px)] pr-2 smooth-scroll hide-scrollbar"></div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 p-8">
+            <div class="flex justify-between items-center mb-8 slide-in">
+                <h1 class="text-2xl font-semibold bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent">Notepad Web</h1>
+            </div>
+
+            <!-- Note Editor -->
+            <div id="noteEditor" class="hidden transform transition-all duration-300">
+                <div class="bg-[#212121] rounded-xl border border-[#333] shadow-2xl">
+                    <div class="border-b border-[#333] p-4 flex justify-between items-center">
+                        <input type="text" id="noteTitle" placeholder="Note title" 
+                            class="text-lg w-full bg-transparent text-gray-300 focus:outline-none placeholder-gray-500">
+                        <div class="flex gap-3">
+                            <button id="saveNoteBtn" class="bg-green-500 text-white px-5 py-2 rounded-lg text-sm hover:bg-green-600 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-green-500/20">Save</button>
+                            <button id="closeEditorBtn" class="bg-[#2a2a2a] text-gray-300 px-5 py-2 rounded-lg text-sm hover:bg-[#333] transform hover:scale-105 transition-all duration-200">Close</button>
+                        </div>
+                    </div>
+                    <div class="editor-toolbar">
+                        <button id="undoBtn" class="toolbar-btn" title="Undo (Ctrl+Z)">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v6h6"></path><path d="M21 17a9 9 0 00-9-9 9 9 0 00-6 2.3L3 13"></path></svg>
+                        </button>
+                        <button id="redoBtn" class="toolbar-btn" title="Redo (Ctrl+Y)">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 7v6h-6"></path><path d="M3 17a9 9 0 019-9 9 9 0 016 2.3l3 2.7"></path></svg>
+                        </button>
+                        <div class="toolbar-divider"></div>
+                        <button id="zoomInBtn" class="toolbar-btn" title="Zoom In (Ctrl++)">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 01-1 1h-1a1 1 0 01-1-1v-3H6a1 1 0 010-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
+                            </svg>
+                        </button>
+                        <button id="zoomOutBtn" class="toolbar-btn" title="Zoom Out (Ctrl-)" disabled>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd" />
+                            </svg>
+                        </button>
+                        <div class="toolbar-divider"></div>
+                        <button id="exportTxtBtn" class="toolbar-btn" title="Export as .txt">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                <path d="M10 3.5a.5.5 0 00-1 0v9.793L5.354 9.646a.5.5 0 10-.708.708l4 4a.5.5 0 00.708 0l4-4a.5.5 0 00-.708-.708L10 13.293V3.5zM3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"/>
+                            </svg>
+                        </button>
+                        <label for="importTxtInput" class="toolbar-btn cursor-pointer" title="Import .txt">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" />
+                            </svg>
+                        </label>
+                        <input type="file" id="importTxtInput" class="file-input" accept=".txt">
+                    </div>
+                    <textarea id="noteContent" 
+                        class="w-full p-6 h-[calc(100vh-300px)] resize-none bg-transparent text-gray-300 focus:outline-none font-[Arial] text-[15px] leading-[1.6] placeholder-gray-500 smooth-scroll hide-scrollbar" 
+                        placeholder="Start typing your note..."></textarea>
+                    <div id="noteStats" class="border-t border-[#333] p-3 text-xs text-gray-500 flex justify-between items-center">
+                        <div>Lines: <span id="lineCount">0</span></div>
+                        <div>Characters: <span id="charCount">0</span></div>
+                        <div>Words: <span id="wordCount">0</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Welcome Screen -->
+            <div id="welcomeScreen" class="text-center mt-32 transform transition-all duration-300">
+                <h2 class="text-4xl font-semibold mb-8 bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent">Welcome to Notepad Web</h2>
+                <button onclick="createNewNote()" 
+                    class="bg-blue-500 text-white px-8 py-4 rounded-xl hover:bg-blue-600 flex items-center gap-3 mx-auto">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+                    </svg>
+                    Create Your First Note
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="modal-backdrop hidden">
+        <div class="modal-content">
+            <div class="modal-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+            </div>
+            <h3 class="text-lg font-semibold text-center mb-2">Delete Note?</h3>
+            <p class="text-gray-400 text-center text-sm">Are you sure you want to delete this note? This action cannot be undone.</p>
+            <div class="modal-buttons">
+                <button id="cancelDelete" class="modal-btn modal-btn-cancel">Cancel</button>
+                <button id="confirmDelete" class="modal-btn modal-btn-delete">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Button -->
+    <button id="settingsBtn" class="settings-btn" title="Settings">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd" />
+        </svg>
+    </button>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="modal-backdrop hidden">
+        <div class="settings-modal">
+            <div class="settings-header">
+                <h2 class="text-lg font-semibold">Settings</h2>
+                <button id="closeSettings" class="settings-close">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="settings-section">
+                <h3 class="text-sm font-medium mb-3">Appearance</h3>
+                <div class="setting-item">
+                    <div>
+                        <div class="setting-label">Theme</div>
+                        <div class="setting-description">Choose your preferred color theme</div>
+                    </div>
+                    <select id="themeSelect" class="setting-select">
+                        <option value="dark">Dark</option>
+                        <option value="light">Light</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <h3 class="text-sm font-medium mb-3">Editor</h3>
+                <div class="setting-item">
+                    <div>
+                        <div class="setting-label">Font Family</div>
+                        <div class="setting-description">Choose your preferred font</div>
+                    </div>
+                    <select id="fontSelect" class="setting-select">
+                        <option value="Arial">Arial</option>
+                        <option value="Times New Roman">Times New Roman</option>
+                        <option value="Courier New">Courier New</option>
+                        <option value="Georgia">Georgia</option>
+                        <option value="Verdana">Verdana</option>
+                    </select>
+                </div>
+            </div>
+            <div class="settings-section">
+                <div class="setting-item">
+                    <div>
+                        <div class="setting-label">Auto Save</div>
+                        <div class="setting-description">Automatically save changes</div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="autoSaveToggle">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <div>
+                        <div class="setting-label">Spell Check</div>
+                        <div class="setting-description">Enable browser spell checking</div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="spellCheckToggle">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
